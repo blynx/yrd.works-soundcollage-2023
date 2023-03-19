@@ -3,6 +3,8 @@ import signal
 import curses
 import time
 import pygame
+import board
+import digitalio
 
 # Using curses extension for simple terminal keyboard handling
 # https://docs.python.org/3/howto/curses.html
@@ -42,6 +44,12 @@ overlay_playing = False # TODO: ARGH!!! # maybe use endevent? https://www.pygame
 pygame.mixer.music.load(WAV_BACK)
 pygame.mixer.music.set_volume(HIGH_VOL)
 pygame.mixer.music.play(-1) # -1: loopy loop all the way
+
+# setup mcp2221 gpio
+test_led = digitalio.DigitalInOut(board.G0)
+led.direction = digitalio.Direction.OUTPUT
+btn = digitalio.DigitalInOut(board.G1)
+btn.direction = digitalio.Direction.INPUT
 
 def main_loop():
 	global DEBUG, overlay_playing
