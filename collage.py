@@ -11,8 +11,9 @@ import digitalio
 # Revert this when exiting ... otherwise console is shit
 stdscr = curses.initscr()
 curses.cbreak()
-stdscr.keypad(True)
 curses.noecho()
+stdscr.keypad(True)
+stdscr.nodelay(True)
 
 # Using pygame for music and sound playback
 #   Music https://www.pygame.org/docs/ref/music.html
@@ -24,13 +25,16 @@ pygame.init()
 
 # Config START
 # WAV_BACK = "schrammel.wav"
-WAV_BACK = "Sealed_Book_45-xx-xx_ep07_The_Accusing_Corpse.wav"
+# WAV_BACK = "Frankfurt Verleihung des Friedenspreis des Deutschen Buchhandels 2021 an Tsitsi Dangarembga.mp3"
+# WAV_BACK = "Sealed_Book_45-xx-xx_ep07_The_Accusing_Corpse.wav"
+WAV_BACK = "Long_Mono.wav"
+# WAV_OVERLAY = "blobMono.wav"
 WAV_OVERLAY = "flup.wav"
 HOTKEY_BUTTON = "p"
 HOTKEY_QUIT = "q"
 HOTKEY_INFO = "i"
 HOTKEY_TOGGLE_DEBUG = "d"
-HIGH_VOL = 0.72
+HIGH_VOL = 0.30
 LOW_VOL = 0.06
 FADE_DURATION = 0.8
 FADE_STEPS = 128
@@ -39,15 +43,15 @@ DEBUG = False
 
 overlay_sound = pygame.mixer.Sound(WAV_OVERLAY)
 overlay_length = overlay_sound.get_length()
-overlay_playing = False # TODO: ARGH!!! # maybe use endevent? https://www.pygame.org/docs/ref/mixer.html#pygame.mixer.Channel.set_endevent ... then also throw away threading?
+overlay_playing = False
 
 pygame.mixer.music.load(WAV_BACK)
 pygame.mixer.music.set_volume(HIGH_VOL)
 pygame.mixer.music.play(-1) # -1: loopy loop all the way
 
 # setup mcp2221 gpio
-test_led = digitalio.DigitalInOut(board.G0)
-led.direction = digitalio.Direction.OUTPUT
+# led = digitalio.DigitalInOut(board.G0)
+# led.direction = digitalio.Direction.OUTPUT
 btn = digitalio.DigitalInOut(board.G1)
 btn.direction = digitalio.Direction.INPUT
 
@@ -56,37 +60,40 @@ def main_loop():
 	c = stdscr.getch()
 	if c == ord(HOTKEY_QUIT):
 		quit_app()
-	elif c == ord(HOTKEY_BUTTON):
-		# TODO: why does overlay_playing thing not work?
-		if overlay_playing == False:
-			overlay_playing = True
-			play_overlay()
+	elif c == ord(HOTKEY_BUTTON) or btn.value == True:
+		play_overlay()	
 	elif c == ord(HOTKEY_TOGGLE_DEBUG):
 		DEBUG = not DEBUG
 		print("\rDebug mode {}\r".format(DEBUG))
 	elif c == ord(HOTKEY_INFO):
-		print("\rMusic: {}\r\nOverlay: {}\r\nOverlay length: {}\r\nCurrent mixer volume: {}\r".format(
-			WAV_BACK, WAV_OVERLAY, overlay_length, pygame.mixer.music.get_volume()))
+		print("\rMusic: {}\r\nOverlay: {}\r\nOverlay length: {}\r\nCurrent mixer volume: {}\r\nButton state: {}\r".format(
+			WAV_BACK, WAV_OVERLAY, overlay_length, pygame.mixer.music.get_volume(), btn.value))
 
 
 def play_overlay():
 	global overlay_playing
-	debug("play that overlay sound (length: {}) ...".format(overlay_length))
+	if overlay_playing == False:
+		overlay_playing = True
+	
+		# TODO: maybe use endevent etc for better handling? https://www.pygame.org/docs/ref/mixer.html#pygame.mixer.Channel.set_endevent ... then also throw away threading?
 
-	fade_vol_down_thread = threading.Thread(target=fade, args=(HIGH_VOL, LOW_VOL, pygame.mixer.music.set_volume))
-	fade_vol_down_thread.start()
+		debug("fade down")
+		fade_vol_down_thread = threading.Thread(target=fade, args=(HIGH_VOL, LOW_VOL, pygame.mixer.music.set_volume))
+		fade_vol_down_thread.start()
+		time.sleep(FADE_DURATION)
 
-	debug(" ~~ OVERLAY PLAY' ~~")
-	time.sleep(FADE_DURATION) # TODO: tweak overlay start !?
-	overlay_sound.play()
-	time.sleep(overlay_length + FADE_DURATION)
-	overlay_playing = False
+		debug("play that overlay sound (length: {}) ...".format(overlay_length))
+		overlay_sound.play()
+		time.sleep(overlay_length)
 
-	fade_vol_up_thread = threading.Thread(target=fade, args=(LOW_VOL, HIGH_VOL, pygame.mixer.music.set_volume))
-	fade_vol_up_thread.start()
+		debug("fade up")
+		fade_vol_up_thread = threading.Thread(target=fade, args=(LOW_VOL, HIGH_VOL, pygame.mixer.music.set_volume))
+		fade_vol_up_thread.start()
+		time.sleep(FADE_DURATION)
+		
+		overlay_playing = False
 
 
-# TODO: tweak fade function ... maybe even easing instead of linear?
 def fade(start, end, cb, duration=FADE_DURATION, steps=FADE_STEPS):
 	step = (end - start) / steps
 	wait = duration / steps
@@ -102,8 +109,9 @@ def fade(start, end, cb, duration=FADE_DURATION, steps=FADE_STEPS):
 def quit_app(sig=None, frame=None, exception=None):
 	# Undo curses settings
 	curses.nocbreak()
-	stdscr.keypad(False)
 	curses.echo()
+	stdscr.keypad(False)
+	stdscr.nodelay(False)
 	curses.endwin()
 	if exception != None: 
 		print("\nOh no!")
@@ -121,7 +129,7 @@ signal.signal(signal.SIGINT, quit_app)
 
 while True:
 	try:
-		time.sleep(0.01) # do some minimum relaxing
+		time.sleep(0.02) # do some minimum relaxing
 		main_loop()
 	except Exception as e: 
 		quit_app(exception=e)
