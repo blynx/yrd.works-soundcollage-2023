@@ -1,3 +1,4 @@
+import os
 import threading
 import signal
 import curses
@@ -9,11 +10,18 @@ import digitalio
 # Using curses extension for simple terminal keyboard handling
 # https://docs.python.org/3/howto/curses.html
 # Revert this when exiting ... otherwise console is shit
-stdscr = curses.initscr()
-curses.cbreak()
-curses.noecho()
-stdscr.keypad(True)
-stdscr.nodelay(True)
+# No terminal for systemd auto start -> no curses
+CURSES = True
+try:
+	stdscr = curses.initscr()
+	curses.cbreak()
+	curses.noecho()
+	stdscr.keypad(True)
+	stdscr.nodelay(True)
+	print("\rStarting with curses.")
+except:
+	CURSES = False
+	print("Starting WITHOUT curses.")
 
 # Using pygame for music and sound playback
 #   Music https://www.pygame.org/docs/ref/music.html
@@ -41,11 +49,13 @@ FADE_STEPS = 128
 DEBUG = False
 # Config END
 
-overlay_sound = pygame.mixer.Sound(WAV_OVERLAY)
+this_dir = os.path.dirname(__file__) + os.path.sep
+
+overlay_sound = pygame.mixer.Sound(this_dir + WAV_OVERLAY)
 overlay_length = overlay_sound.get_length()
 overlay_playing = False
 
-pygame.mixer.music.load(WAV_BACK)
+pygame.mixer.music.load(this_dir +  WAV_BACK)
 pygame.mixer.music.set_volume(HIGH_VOL)
 pygame.mixer.music.play(-1) # -1: loopy loop all the way
 
@@ -57,17 +67,21 @@ btn.direction = digitalio.Direction.INPUT
 
 def main_loop():
 	global DEBUG, overlay_playing
-	c = stdscr.getch()
-	if c == ord(HOTKEY_QUIT):
-		quit_app()
-	elif c == ord(HOTKEY_BUTTON) or btn.value == True:
-		play_overlay()	
-	elif c == ord(HOTKEY_TOGGLE_DEBUG):
-		DEBUG = not DEBUG
-		print("\rDebug mode {}\r".format(DEBUG))
-	elif c == ord(HOTKEY_INFO):
-		print("\rMusic: {}\r\nOverlay: {}\r\nOverlay length: {}\r\nCurrent mixer volume: {}\r\nButton state: {}\r".format(
-			WAV_BACK, WAV_OVERLAY, overlay_length, pygame.mixer.music.get_volume(), btn.value))
+	if btn.value == True:
+		play_overlay()
+	# curses hotkeys
+	if CURSES == True:
+		c = stdscr.getch()
+		if c == ord(HOTKEY_QUIT):
+			quit_app()
+		elif c == ord(HOTKEY_BUTTON):
+			play_overlay()
+		elif c == ord(HOTKEY_TOGGLE_DEBUG):
+			DEBUG = not DEBUG
+			print("\rDebug mode {}\r".format(DEBUG))
+		elif c == ord(HOTKEY_INFO):
+			print("\rMusic: {}\r\nOverlay: {}\r\nOverlay length: {}\r\nCurrent mixer volume: {}\r\nButton state: {}\r".format(
+				WAV_BACK, WAV_OVERLAY, overlay_length, pygame.mixer.music.get_volume(), btn.value))
 
 
 def play_overlay():
@@ -107,12 +121,13 @@ def fade(start, end, cb, duration=FADE_DURATION, steps=FADE_STEPS):
 
 
 def quit_app(sig=None, frame=None, exception=None):
-	# Undo curses settings
-	curses.nocbreak()
-	curses.echo()
-	stdscr.keypad(False)
-	stdscr.nodelay(False)
-	curses.endwin()
+	if CURSES == True:
+		# Undo curses settings
+		curses.nocbreak()
+		curses.echo()
+		stdscr.keypad(False)
+		stdscr.nodelay(False)
+		curses.endwin()
 	if exception != None: 
 		print("\nOh no!")
 		print(exception) # what about strack trace?
