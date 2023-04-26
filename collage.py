@@ -62,7 +62,7 @@ pygame.mixer.music.play(-1) # -1: loopy loop all the way
 # setup mcp2221 gpio
 # led = digitalio.DigitalInOut(board.G0)
 # led.direction = digitalio.Direction.OUTPUT
-btn = digitalio.DigitalInOut(board.G1)
+btn = digitalio.DigitalInOut(board.G3)
 btn.direction = digitalio.Direction.INPUT
 
 def main_loop():
