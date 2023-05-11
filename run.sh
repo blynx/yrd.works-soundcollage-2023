@@ -1,4 +1,4 @@
-##!/bin/bash
+#!/bin/bash
 
 # list soundcards
 # pacmd list-sinks | grep -e 'name:' -e 'index:'
