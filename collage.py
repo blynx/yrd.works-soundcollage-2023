@@ -32,12 +32,8 @@ except:
 pygame.init()
 
 # Config START
-# WAV_BACK = "schrammel.wav"
-# WAV_BACK = "Frankfurt Verleihung des Friedenspreis des Deutschen Buchhandels 2021 an Tsitsi Dangarembga.mp3"
-# WAV_BACK = "Sealed_Book_45-xx-xx_ep07_The_Accusing_Corpse.wav"
-WAV_BACK = "Long_Mono.wav"
-# WAV_OVERLAY = "blobMono.wav"
-WAV_OVERLAY = "flup.wav"
+WAV_BACK = "audio-back.wav"
+WAV_OVERLAY = "audio-overlay.wav"
 HOTKEY_BUTTON = "p"
 HOTKEY_QUIT = "q"
 HOTKEY_INFO = "i"
