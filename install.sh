@@ -55,7 +55,7 @@ cat > /etc/systemd/system/yrd.works-soundcollage-start.service << EOF
 Description=Autorun YRD.WORKS Soundcollage
 
 [Service]
-ExecStart=/bin/bash /home/boss/yrd.works-soundcollage-2023/run.shit
+ExecStart=/bin/bash /home/boss/yrd.works-soundcollage-2023/run.sh
 User=boss
 
 [Install]
