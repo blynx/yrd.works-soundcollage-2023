@@ -33,6 +33,11 @@ sudo netplan apply
 
 
 
+# disabled cloud-init
+sudo touch /etc/cloud/cloud-init.disabled
+
+
+
 # Board config wie in https://learn.adafruit.com/circuitpython-libraries-on-any-computer-with-mcp2221/linux
 cat > /etc/udev/rules.d/99-mcp2221.rules << EOF
 SUBSYSTEM=="usb", ATTRS{idVendor}=="04d8", ATTR{idProduct}=="00dd", MODE="0666"

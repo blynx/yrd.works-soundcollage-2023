@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sleep 10
+
 ./run-set-soundcard.sh
 
 # needs to be set https://learn.adafruit.com/circuitpython-libraries-on-any-computer-with-mcp2221/linux
