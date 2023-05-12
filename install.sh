@@ -27,8 +27,8 @@ pip install pygame hidapi adafruit-blinka
 
 
 # "wait for network start job" ignorieren
-sed -i -e '/    enp1s0:/a\' -e '      optional: true' /etc/netplan/00-installer-config.yaml
-sed -i -e '/    mlan0:/a\' -e '      optional: true' /etc/netplan/00-installer-config-wifi.yaml
+sudo sed -i -e '/    enp1s0:/a\' -e '      optional: true' /etc/netplan/00-installer-config.yaml
+sudo sed -i -e '/    mlan0:/a\' -e '      optional: true' /etc/netplan/00-installer-config-wifi.yaml
 sudo netplan apply
 
 
@@ -39,13 +39,13 @@ sudo touch /etc/cloud/cloud-init.disabled
 
 
 # Board config wie in https://learn.adafruit.com/circuitpython-libraries-on-any-computer-with-mcp2221/linux
-cat > /etc/udev/rules.d/99-mcp2221.rules << EOF
+sudo cat > /etc/udev/rules.d/99-mcp2221.rules << EOF
 SUBSYSTEM=="usb", ATTRS{idVendor}=="04d8", ATTR{idProduct}=="00dd", MODE="0666"
 EOF
 
 sudo rmmod hid_mcp2221
 
-cat >> /etc/modprobe.d/blacklist.conf << EOF
+sudo cat >> /etc/modprobe.d/blacklist.conf << EOF
 
 # blacklist native mcp2221 driver for adafruit driver
 blacklist hid_mcp2221
@@ -74,7 +74,7 @@ if  grep -q "ugly soundcollage starter" "/home/boss/.profile" ; then
     echo 'ugly starter already installed';
 else
     echo 'installing ugly starter';
-cat >> ~/.profile << EOF
+sudo cat >> home/boss/.profile << EOF
 # ugly soundcollage starter
 cd /home/boss/yrd.works-soundcollage-2023
 sleep 5
