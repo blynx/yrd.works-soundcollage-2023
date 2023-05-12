@@ -24,7 +24,14 @@ sudo sed -i "s/$LOGIN_FIND/$LOGIN_REPLACE/g" /lib/systemd/system/getty@.service
 sudo apt-get -y install python3 python3-pip libusb-1.0 libudev-dev pulseaudio alsa-base alsa-utils moc
 pip install pygame hidapi adafruit-blinka
 
-# TODO: "wait for network start job" Fehler :/ .. wegen wlan?
+
+
+# "wait for network start job" ignorieren
+sed -i -e '/    enp1s0:/a\' -e '      optional: true' /etc/netplan/00-installer-config.yaml
+sed -i -e '/    mlan0:/a\' -e '      optional: true' /etc/netplan/00-installer-config-wifi.yaml
+sudo netplan apply
+
+
 
 # Board config wie in https://learn.adafruit.com/circuitpython-libraries-on-any-computer-with-mcp2221/linux
 cat > /etc/udev/rules.d/99-mcp2221.rules << EOF
