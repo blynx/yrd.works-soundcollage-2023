@@ -30,6 +30,7 @@ except:
 #   Sound https://www.pygame.org/docs/ref/mixer.html#pygame.mixer.Sound
 #   Channel https://www.pygame.org/docs/ref/mixer.html#pygame.mixer.Channel
 pygame.init()
+pygame.mixer.init()
 
 # Config START
 WAV_BACK = "audio-back.wav"
