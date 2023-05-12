@@ -1,29 +1,49 @@
 #!/bin/bash
 
+# Cheatsheets
+
+# sed find/replace line
+# sed 's/^.*\bpattern\b.*$/Substitution/' file
+
 # cat > REPLACE_NEWFILE << EOF
-# cat >> APPEND << EOF
+# cat >> APPEND_FILE << EOF
+
+# ---
+
+# Auto login
+# In /lib/systemd/system/getty@.service
+# From: ExecStart=-/sbin/agetty -o '-p -- \\u' --noclear %I $TERM
+# To: ExecStart=-/sbin/agetty --noissue --autologin boss %I $TERM Type=idle
+LOGIN_FIND="^ExecStart=.*$"
+LOGIN_REPLACE="ExecStart=-\/sbin\/agetty --noissue --autologin boss %I \$TERM Type=idle"
+sudo sed -i "s/$LOGIN_FIND/$LOGIN_REPLACE/g" /lib/systemd/system/getty@.service
+
+
 
 # Install python, board, dependencies, alsa & co
-# sudo apt-get --force-yes install python3 python3-pip libusb-1.0 libudev-dev pulseaudio alsa-base alsa-utils 
-# pip install pygame hidapi adafruit-blinka
+sudo apt-get -y install python3 python3-pip libusb-1.0 libudev-dev pulseaudio alsa-base alsa-utils moc
+pip install pygame hidapi adafruit-blinka
 
 # TODO: "wait for network start job" Fehler :/ .. wegen wlan?
 
-# TODO: Pulseaudio service direkt starten oder manueller Neustart?
-
 # Board config wie in https://learn.adafruit.com/circuitpython-libraries-on-any-computer-with-mcp2221/linux
-# TODO: test
-# cat > /etc/udev/rules.d/99-mcp2221.rules << EOF
-# SUBSYSTEM=="usb", ATTRS{idVendor}=="04d8", ATTR{idProduct}=="00dd", MODE="0666"
-# EOF
+cat > /etc/udev/rules.d/99-mcp2221.rules << EOF
+SUBSYSTEM=="usb", ATTRS{idVendor}=="04d8", ATTR{idProduct}=="00dd", MODE="0666"
+EOF
 
-# sudo rmmod hid_mcp2221
-# TODO: "blacklist hid_mcp2221" in die datei: /etc/modprobe.d/blacklist.conf
-# sudo update-initramfs -u
+sudo rmmod hid_mcp2221
+
+cat >> /etc/modprobe.d/blacklist.conf << EOF
+
+# blacklist native mcp2221 driver for adafruit driver
+blacklist hid_mcp2221
+EOF
+
+sudo update-initramfs -u
+
 
 # Autorun service erstellen:
-# TODO: pfad für yrd.works-soundcollage-start.service
-cat > TEST2 << EOF
+cat > /etc/systemd/system/yrd.works-soundcollage-start.service << EOF
 [Unit]
 Description=Autorun YRD.WORKS Soundcollage
 
@@ -34,6 +54,7 @@ User=boss
 [Install]
 WantedBy=default.target
 EOF
-# systemctl enable yrd.works-soundcollage-start.service
 
+systemctl enable yrd.works-soundcollage-start.service
 
+echo "Installation fertig!? 🥸 ... einmal neu starten bitte."
