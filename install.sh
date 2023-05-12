@@ -62,6 +62,6 @@ User=boss
 WantedBy=default.target
 EOF
 
-systemctl enable yrd.works-soundcollage-start.service
+sudo systemctl enable yrd.works-soundcollage-start.service
 
 echo "Installation fertig!? 🥸 ... einmal neu starten bitte."
