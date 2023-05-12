@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# list soundcards
+# list soundcards!
 pacmd list-sinks | grep -e 'name:' -e 'index:'
 
 soundcard=$(pacmd list-sinks | sed -En "s/.*<(alsa_output\.usb.*)>.*/\1/p")
