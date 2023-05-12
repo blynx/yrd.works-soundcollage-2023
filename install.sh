@@ -55,18 +55,18 @@ sudo update-initramfs -u
 
 
 # Autorun service erstellen:
-cat > /etc/systemd/system/yrd.works-soundcollage-start.service << EOF
-[Unit]
-Description=Autorun YRD.WORKS Soundcollage
+# cat > /etc/systemd/system/yrd.works-soundcollage-start.service << EOF
+# [Unit]
+# Description=Autorun YRD.WORKS Soundcollage
 
-[Service]
-ExecStart=/bin/bash /home/boss/yrd.works-soundcollage-2023/run.sh
-User=boss
+# [Service]
+# ExecStart=/bin/bash /home/boss/yrd.works-soundcollage-2023/run.sh
+# User=boss
 
-[Install]
-WantedBy=default.target
-EOF
+# [Install]
+# WantedBy=default.target
+# EOF
 
-sudo systemctl enable yrd.works-soundcollage-start.service
+# sudo systemctl enable yrd.works-soundcollage-start.service
 
 echo "Installation fertig!? 🥸 ... einmal neu starten bitte."

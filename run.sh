@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sleep 10
+# sleep 10
 
 ./run-set-soundcard.sh
 
