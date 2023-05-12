@@ -69,4 +69,20 @@ sudo update-initramfs -u
 
 # sudo systemctl enable yrd.works-soundcollage-start.service
 
+# ugly autostart
+if  grep -q "ugly soundcollage starter" "/home/boss/.profile" ; then
+    echo 'ugly starter already installed';
+else
+    echo 'installing ugly starter';
+cat >> ~/.profile << EOF
+# ugly soundcollage starter
+cd /home/boss/yrd.works-soundcollage-2023
+sleep 5
+./run.sh
+cd ..
+EOF
+fi
+
+
+
 echo "Installation fertig!? 🥸 ... einmal neu starten bitte."
