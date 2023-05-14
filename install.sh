@@ -20,7 +20,7 @@ sudo sed -i "s/$LOGIN_FIND/$LOGIN_REPLACE/g" /lib/systemd/system/getty@.service
 
 
 
-# ❇️  Install python, board, dependencies, alsa & co
+# ❇️ Install python, board, dependencies, alsa & co
 sudo apt-get -y install python3 python3-pip libusb-1.0 libudev-dev pulseaudio alsa-base alsa-utils moc
 pip install pygame hidapi adafruit-blinka
 # Install yq: jq for yaml
@@ -28,12 +28,12 @@ sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_386 
 
 
 
-# ❇️  "wait for network start job" ignorieren
+# ❇️ "wait for network start job" ignorieren
 # sudo sed -i -e '/    enp1s0:/a\' -e '      optional: true' 
 # sudo sed -i -e '/    mlan0:/a\' -e '      optional: true' /etc/netplan/00-installer-config-wifi.yaml
 # Set it nicely with yq ... cool!
-sudo yq -i '.network.ethernets.enp1s0.optional = "true"' /etc/netplan/00-installer-config.yaml
-sudo yq -i '.network.wifis.mlan0.optional = "true"' /etc/netplan/00-installer-config-wifi.yaml
+sudo yq -i '.network.ethernets.enp1s0.optional = true' /etc/netplan/00-installer-config.yaml
+sudo yq -i '.network.wifis.mlan0.optional = true' /etc/netplan/00-installer-config-wifi.yaml
 sudo netplan apply
 
 
