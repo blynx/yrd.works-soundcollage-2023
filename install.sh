@@ -18,16 +18,6 @@ fi
 
 
 
-# Auto login
-# In /lib/systemd/system/getty@.service
-# From: ExecStart=-/sbin/agetty -o '-p -- \\u' --noclear %I $TERM
-# To: ExecStart=-/sbin/agetty --noissue --autologin boss %I $TERM Type=idle
-LOGIN_FIND="^ExecStart=.*$"
-LOGIN_REPLACE="ExecStart=-\/sbin\/agetty --noissue --autologin boss %I \$TERM Type=idle"
-sudo sed -i "s/$LOGIN_FIND/$LOGIN_REPLACE/g" /lib/systemd/system/getty@.service
-
-
-
 # Install python, board, dependencies, alsa & co
 sudo apt-get -y install python3 python3-pip libusb-1.0 libudev-dev pulseaudio alsa-base alsa-utils moc
 pip install pygame hidapi adafruit-blinka
@@ -71,6 +61,16 @@ EOF
 fi
 
 sudo update-initramfs -u
+
+
+
+# Auto login
+# In /lib/systemd/system/getty@.service
+# From: ExecStart=-/sbin/agetty -o '-p -- \\u' --noclear %I $TERM
+# To: ExecStart=-/sbin/agetty --noissue --autologin boss %I $TERM Type=idle
+LOGIN_FIND="^ExecStart=.*$"
+LOGIN_REPLACE="ExecStart=-\/sbin\/agetty --noissue --autologin boss %I \$TERM Type=idle"
+sudo sed -i "s/$LOGIN_FIND/$LOGIN_REPLACE/g" /lib/systemd/system/getty@.service
 
 
 
