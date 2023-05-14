@@ -10,6 +10,14 @@
 
 # ---
 
+if [ "$USER" != "root" ]
+then
+    echo "Skript muss als root/sudo ausgeführt werden. zB: 'sudo ./install.sh'"
+    exit 2
+fi
+
+
+
 # ❇️ Auto login
 # In /lib/systemd/system/getty@.service
 # From: ExecStart=-/sbin/agetty -o '-p -- \\u' --noclear %I $TERM
