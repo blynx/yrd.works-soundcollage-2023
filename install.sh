@@ -30,6 +30,8 @@ sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_386 
 # sudo sed -i -e '/    enp1s0:/a\' -e '      optional: true' 
 # sudo sed -i -e '/    mlan0:/a\' -e '      optional: true' /etc/netplan/00-installer-config-wifi.yaml
 # Set it nicely with yq ... cool!
+# TODO: just writing this out into empty (wifi) config breaks them and breaks netplan network things all together
+# maybe just write a basic default wifi connection into file
 sudo yq -i '.network.ethernets.enp1s0.optional = true' /etc/netplan/00-installer-config.yaml
 sudo yq -i '.network.wifis.mlan0.optional = true' /etc/netplan/00-installer-config-wifi.yaml
 sudo netplan apply

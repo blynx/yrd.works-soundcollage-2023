@@ -32,9 +32,11 @@ except:
 pygame.init()
 pygame.mixer.init()
 
+# Configure environment variables in run.sh file!
+AUDIO_BACK = os.environ.get('AUDIO_BACK_FILE') or "audio-back-default.mp3"
+AUDIO_OVERLAY = os.environ.get('AUDIO_OVERLAY_FILE') or "audio-overlay-default.mp3"
+
 # Config START
-WAV_BACK = "audio-back.mp3"
-WAV_OVERLAY = "audio-overlay.mp3"
 HOTKEY_BUTTON = "p"
 HOTKEY_QUIT = "q"
 HOTKEY_INFO = "i"
@@ -48,11 +50,11 @@ DEBUG = False
 
 this_dir = os.path.dirname(__file__) + os.path.sep
 
-overlay_sound = pygame.mixer.Sound(this_dir + WAV_OVERLAY)
+overlay_sound = pygame.mixer.Sound(this_dir + AUDIO_OVERLAY)
 overlay_length = overlay_sound.get_length()
 overlay_playing = False
 
-pygame.mixer.music.load(this_dir +  WAV_BACK)
+pygame.mixer.music.load(this_dir +  AUDIO_BACK)
 pygame.mixer.music.set_volume(HIGH_VOL)
 pygame.mixer.music.play(-1) # -1: loopy loop all the way
 
@@ -78,7 +80,7 @@ def main_loop():
 			print("\rDebug mode {}\r".format(DEBUG))
 		elif c == ord(HOTKEY_INFO):
 			print("\rMusic: {}\r\nOverlay: {}\r\nOverlay length: {}\r\nCurrent mixer volume: {}\r\nButton state: {}\r".format(
-				WAV_BACK, WAV_OVERLAY, overlay_length, pygame.mixer.music.get_volume(), btn.value))
+				AUDIO_BACK, AUDIO_OVERLAY, overlay_length, pygame.mixer.music.get_volume(), btn.value))
 
 
 def play_overlay():
