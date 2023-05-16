@@ -33,8 +33,8 @@ pygame.init()
 pygame.mixer.init()
 
 # Config START
-WAV_BACK = "audio-back.wav"
-WAV_OVERLAY = "audio-overlay.wav"
+WAV_BACK = "audio-back.mp3"
+WAV_OVERLAY = "audio-overlay.mp3"
 HOTKEY_BUTTON = "p"
 HOTKEY_QUIT = "q"
 HOTKEY_INFO = "i"
