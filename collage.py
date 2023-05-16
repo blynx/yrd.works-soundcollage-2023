@@ -32,7 +32,7 @@ except:
 pygame.init()
 pygame.mixer.init()
 
-# Configure environment variables in run.sh file!
+# Configure environment variables in "audio_config.env" file (copy & edit audio_config.env.example)
 AUDIO_BACK = os.environ.get('AUDIO_BACK_FILE') or "audio-back-default.mp3"
 AUDIO_OVERLAY = os.environ.get('AUDIO_OVERLAY_FILE') or "audio-overlay-default.mp3"
 

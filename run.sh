@@ -4,8 +4,9 @@
 
 ./run-set-soundcard.sh
 
-# export AUDIO_BACK_FILE=other-audio-file.mp3
-# export AUDIO_OVERLAY_FILE=another-audio-file.mp3
+set -a
+source audio_config.env
+set +a
 
 # needs to be set https://learn.adafruit.com/circuitpython-libraries-on-any-computer-with-mcp2221/linux
 export BLINKA_MCP2221=1
