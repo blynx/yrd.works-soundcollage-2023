@@ -8,6 +8,7 @@ import board
 import digitalio
 
 # Using curses extension for simple terminal keyboard handling
+# Curses? "The curses library supplies a terminal-independent screen-painting and keyboard-handling facility for text-based terminals"
 # https://docs.python.org/3/howto/curses.html
 # Revert this when exiting ... otherwise console is shit
 # No terminal for systemd auto start -> no curses
@@ -37,15 +38,15 @@ AUDIO_BACK = os.environ.get('AUDIO_BACK_FILE') or "audio-back-default.mp3"
 AUDIO_OVERLAY = os.environ.get('AUDIO_OVERLAY_FILE') or "audio-overlay-default.mp3"
 
 # Config START
-HOTKEY_BUTTON = "p"
-HOTKEY_QUIT = "q"
-HOTKEY_INFO = "i"
-HOTKEY_TOGGLE_DEBUG = "d"
-HIGH_VOL = 0.30
-LOW_VOL = 0.06
+HOTKEY_BUTTON = "p" # THE BUTTON (only on "curses mode")
+HOTKEY_QUIT = "q" # quit (only on "curses mode")
+HOTKEY_INFO = "i" # show some info (only on "curses mode")
+HOTKEY_TOGGLE_DEBUG = "d" # toggle debug mode (only on "curses mode")
+HIGH_VOL = 0.30 # normal volume to play sound files
+LOW_VOL = 0.06 # low volume when to fade down to on button press
 FADE_DURATION = 0.8
-FADE_STEPS = 128
-DEBUG = False
+FADE_STEPS = 128 # should be reasonable hight to avoid clips and bips
+DEBUG = False # can be toggled via HOTKEY_TOGGLE_DEBUG anyway now
 # Config END
 
 this_dir = os.path.dirname(__file__) + os.path.sep
