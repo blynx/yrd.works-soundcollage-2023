@@ -11,7 +11,7 @@ import digitalio
 # Curses? "The curses library supplies a terminal-independent screen-painting and keyboard-handling facility for text-based terminals"
 # https://docs.python.org/3/howto/curses.html
 # Revert this when exiting ... otherwise console is shit
-# No terminal for systemd auto start -> no curses
+# No terminal when starting this script via systemd auto start -> no curses
 CURSES = True
 try:
 	stdscr = curses.initscr()
@@ -88,7 +88,7 @@ def play_overlay():
 	global overlay_playing
 	if overlay_playing == False:
 		overlay_playing = True
-	
+
 		# TODO: maybe use endevent etc for better handling? https://www.pygame.org/docs/ref/mixer.html#pygame.mixer.Channel.set_endevent ... then also throw away threading?
 
 		debug("fade down")
@@ -104,7 +104,7 @@ def play_overlay():
 		fade_vol_up_thread = threading.Thread(target=fade, args=(LOW_VOL, HIGH_VOL, pygame.mixer.music.set_volume))
 		fade_vol_up_thread.start()
 		time.sleep(FADE_DURATION)
-		
+
 		overlay_playing = False
 
 
@@ -120,6 +120,7 @@ def fade(start, end, cb, duration=FADE_DURATION, steps=FADE_STEPS):
 		current_vol = next_vol
 
 
+# handle quitting via exception and "SIGINT", all arguments handle both cases
 def quit_app(sig=None, frame=None, exception=None):
 	if CURSES == True:
 		# Undo curses settings
@@ -128,11 +129,12 @@ def quit_app(sig=None, frame=None, exception=None):
 		stdscr.keypad(False)
 		stdscr.nodelay(False)
 		curses.endwin()
-	if exception != None: 
+	if exception != None:
 		print("\nOh no!")
-		print(exception) # what about strack trace?
+		print(exception) # what about stack trace?
 	quit()
 
+# print to curses screen, prepend carriage return
 def debug(msg):
 	if DEBUG == True:
 		print("\r{}".format(msg))
@@ -146,5 +148,5 @@ while True:
 	try:
 		time.sleep(0.02) # do some minimum relaxing
 		main_loop()
-	except Exception as e: 
+	except Exception as e:
 		quit_app(exception=e)
