@@ -77,9 +77,13 @@ if start_with_button:
 def main_loop():
 	global DEBUG, hotkey_pressed_time
 	if start_with_button and btn.value == True:
-		play_overlay()
-	# else:
-	# 	hotkey_pressed_time = None
+		if hotkey_pressed_time == None:
+			play_overlay()
+			hotkey_pressed_time = now()
+		elif now() + HOTKEY_STOP_TIME > hotkey_pressed_time:
+			stop_overlay()
+	else:
+		hotkey_pressed_time = None
 	# curses hotkeys
 	if CURSES == True:
 		c = stdscr.getch()
