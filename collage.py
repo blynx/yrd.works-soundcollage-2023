@@ -80,7 +80,7 @@ def main_loop():
 		if hotkey_pressed_time == None:
 			play_overlay()
 			hotkey_pressed_time = now()
-		elif now() + HOTKEY_STOP_TIME > hotkey_pressed_time:
+		elif now() > hotkey_pressed_time + HOTKEY_STOP_TIME:
 			stop_overlay()
 	else:
 		hotkey_pressed_time = None
