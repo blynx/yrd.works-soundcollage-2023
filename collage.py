@@ -4,8 +4,12 @@ import signal
 import curses
 import time
 import pygame
-import board
-import digitalio
+
+start_with_button = os.environ.get('BLINKA_MCP2221') == "1"
+if start_with_button:
+	print("\rStarting with Adafruit MCP2221 button")
+	import board
+	import digitalio
 
 # Using curses extension for simple terminal keyboard handling
 # Curses? "The curses library supplies a terminal-independent screen-painting and keyboard-handling facility for text-based terminals"
@@ -41,7 +45,9 @@ AUDIO_OVERLAY = os.environ.get('AUDIO_OVERLAY_FILE') or "audio-overlay-default.m
 HOTKEY_BUTTON = "p" # THE BUTTON (only on "curses mode")
 HOTKEY_QUIT = "q" # quit (only on "curses mode")
 HOTKEY_INFO = "i" # show some info (only on "curses mode")
+HOTKEY_STOP = "s" # stop overlay
 HOTKEY_TOGGLE_DEBUG = "d" # toggle debug mode (only on "curses mode")
+HOTKEY_STOP_TIME = 3000
 HIGH_VOL = 0.30 # normal volume to play sound files
 LOW_VOL = 0.06 # low volume when to fade down to on button press
 FADE_DURATION = 0.8
@@ -52,8 +58,9 @@ DEBUG = False # can be toggled via HOTKEY_TOGGLE_DEBUG anyway now
 this_dir = os.path.dirname(__file__) + os.path.sep
 
 overlay_sound = pygame.mixer.Sound(this_dir + AUDIO_OVERLAY)
+global_overlay_session = 0
 overlay_length = overlay_sound.get_length()
-overlay_playing = False
+hotkey_pressed_time = None
 
 pygame.mixer.music.load(this_dir +  AUDIO_BACK)
 pygame.mixer.music.set_volume(HIGH_VOL)
@@ -62,13 +69,17 @@ pygame.mixer.music.play(-1) # -1: loopy loop all the way
 # setup mcp2221 gpio
 # led = digitalio.DigitalInOut(board.G0)
 # led.direction = digitalio.Direction.OUTPUT
-btn = digitalio.DigitalInOut(board.G3)
-btn.direction = digitalio.Direction.INPUT
+btn = None
+if start_with_button:
+	btn = digitalio.DigitalInOut(board.G3)
+	btn.direction = digitalio.Direction.INPUT
 
 def main_loop():
-	global DEBUG, overlay_playing
-	if btn.value == True:
+	global DEBUG, hotkey_pressed_time
+	if start_with_button and btn.value == True:
 		play_overlay()
+	# else:
+	# 	hotkey_pressed_time = None
 	# curses hotkeys
 	if CURSES == True:
 		c = stdscr.getch()
@@ -76,36 +87,47 @@ def main_loop():
 			quit_app()
 		elif c == ord(HOTKEY_BUTTON):
 			play_overlay()
+		elif c == ord(HOTKEY_STOP):
+			stop_overlay()
 		elif c == ord(HOTKEY_TOGGLE_DEBUG):
 			DEBUG = not DEBUG
 			print("\rDebug mode {}\r".format(DEBUG))
 		elif c == ord(HOTKEY_INFO):
-			print("\rMusic: {}\r\nOverlay: {}\r\nOverlay length: {}\r\nCurrent mixer volume: {}\r\nButton state: {}\r".format(
-				AUDIO_BACK, AUDIO_OVERLAY, overlay_length, pygame.mixer.music.get_volume(), btn.value))
+			print("\rMusic: {}\r\nOverlay: {}\r\nOverlay length: {}\r\nOverlay channels: {}\r\nCurrent mixer volume: {}r".format(
+				AUDIO_BACK, AUDIO_OVERLAY, overlay_sound.get_num_channels(), overlay_length, pygame.mixer.music.get_volume()))
 
 
 def play_overlay():
-	global overlay_playing
-	if overlay_playing == False:
-		overlay_playing = True
-
-		# TODO: maybe use endevent etc for better handling? https://www.pygame.org/docs/ref/mixer.html#pygame.mixer.Channel.set_endevent ... then also throw away threading?
-
+	global global_overlay_session
+	if overlay_sound.get_num_channels() == 0:
 		debug("fade down")
 		fade_vol_down_thread = threading.Thread(target=fade, args=(HIGH_VOL, LOW_VOL, pygame.mixer.music.set_volume))
 		fade_vol_down_thread.start()
 		time.sleep(FADE_DURATION)
+		global_overlay_session = global_overlay_session + 1
+		actually_play_overlay_thread = threading.Thread(target=actually_play_overlay, args=(overlay_sound, global_overlay_session))
+		actually_play_overlay_thread.start()
 
-		debug("play that overlay sound (length: {}) ...".format(overlay_length))
-		overlay_sound.play()
-		time.sleep(overlay_length)
 
+def stop_overlay():
+	if overlay_sound.get_num_channels() > 0:
 		debug("fade up")
 		fade_vol_up_thread = threading.Thread(target=fade, args=(LOW_VOL, HIGH_VOL, pygame.mixer.music.set_volume))
 		fade_vol_up_thread.start()
 		time.sleep(FADE_DURATION)
+		overlay_sound.fadeout(int(FADE_DURATION * 1000))
 
-		overlay_playing = False
+
+def actually_play_overlay(overlay_sound, this_overlay_session):
+	global global_overlay_session
+	debug("play that overlay sound (length: {}) ...".format(overlay_length))
+	overlay_sound.play()
+	time.sleep(overlay_length)
+	if global_overlay_session == this_overlay_session:
+		debug("fade up")
+		fade_vol_up_thread = threading.Thread(target=fade, args=(LOW_VOL, HIGH_VOL, pygame.mixer.music.set_volume))
+		fade_vol_up_thread.start()
+		time.sleep(FADE_DURATION)
 
 
 def fade(start, end, cb, duration=FADE_DURATION, steps=FADE_STEPS):
@@ -138,6 +160,9 @@ def quit_app(sig=None, frame=None, exception=None):
 def debug(msg):
 	if DEBUG == True:
 		print("\r{}".format(msg))
+
+def now():
+	return round(time.time() * 1000)
 
 # --
 
