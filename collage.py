@@ -108,6 +108,8 @@ def play_overlay():
 		fade_vol_down_thread = threading.Thread(target=fade, args=(HIGH_VOL, LOW_VOL, pygame.mixer.music.set_volume))
 		fade_vol_down_thread.start()
 		time.sleep(FADE_DURATION)
+		# Giving every thread a unique "session id"
+		# By comparing a threads own session against the global session we can ensure the right thread controls the sound
 		global_overlay_session = global_overlay_session + 1
 		actually_play_overlay_thread = threading.Thread(target=actually_play_overlay, args=(overlay_sound, global_overlay_session))
 		actually_play_overlay_thread.start()
